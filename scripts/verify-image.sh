@@ -13,6 +13,8 @@ WINEPREFIX="$qaac_prefix" WINEARCH=win64 XDG_RUNTIME_DIR="$qaac_prefix/runtime" 
 
 python3 - "$variant" <<'PY'
 import importlib.metadata as metadata
+import os
+import shutil
 import sys
 import vapoursynth as vs
 
@@ -34,5 +36,17 @@ if not hasattr(core, "fmtc"):
 clip = core.std.BlankClip(width=16, height=16, length=1, format=vs.GRAY8)
 if clip.get_frame(0).width != 16:
     raise SystemExit("VapourSynth core frame request failed")
+if variant == "cu129":
+    import vsmlrt
+
+    trtexec = shutil.which("trtexec")
+    if trtexec is None:
+        raise SystemExit("cu129 image is missing trtexec from PATH")
+    if os.path.realpath(vsmlrt.trtexec_path) != os.path.realpath(trtexec) or not os.access(trtexec, os.X_OK):
+        raise SystemExit(f"vsmlrt did not resolve the executable trtexec path: {vsmlrt.trtexec_path!r}")
 print(f"VapourSynth API {vs.__api_version__.api_major} image verification passed for {variant}")
 PY
+
+if [[ "$variant" == cu129 ]]; then
+    trtexec --help >/dev/null
+fi

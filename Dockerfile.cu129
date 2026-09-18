@@ -19,9 +19,10 @@ COPY --chmod=0755 scripts/update-tools.sh ${VAPOURSYNTH_DOCKER_ROOT}/update-tool
 RUN ${VAPOURSYNTH_DOCKER_ROOT}/update-tools.sh \
     && rm -rf /root/.cache /var/lib/apt/lists/*
 
-COPY --chmod=0755 scripts/install-vapoursynth.sh scripts/verify-image.sh ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/
+COPY --chmod=0755 scripts/install-vapoursynth.sh scripts/install-tensorrt-builder.sh scripts/verify-image.sh ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/
 
 RUN ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/install-vapoursynth.sh cu129 \
+    && ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/install-tensorrt-builder.sh \
     && ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/verify-image.sh cu129 \
     && rm -rf ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts /root/.cache /var/lib/apt/lists/*
 

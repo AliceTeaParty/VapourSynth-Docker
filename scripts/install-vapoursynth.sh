@@ -41,7 +41,8 @@ python3 -m pip install --upgrade \
     vapoursynth-lsmas \
     vapoursynth-mvutensils \
     vapoursynth-nnedi3vk \
-    vapoursynth-eedi3vk2
+    vapoursynth-eedi3vk2 \
+    vapoursynth-bm3dvk
 
 python3 -m pip install --upgrade \
     --extra-index-url https://jaded-encoding-thaumaturgy.github.io/vs-wheels/simple \

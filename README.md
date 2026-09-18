@@ -45,7 +45,10 @@ CUDA/TensorRT filtering needs a compatible NVIDIA driver and GPU.
 ## Included tools
 
 `ts2_link`, `x265`, `mkvmerge`, `mkvinfo`, `mkvextract`, `tsMuxeR`, `ffmpeg`,
-`ffprobe`, and `qaac64` are on `PATH`. MkvToolNix is installed from its signed
+`ffprobe`, and `qaac64` are on `PATH`. The `cu129` image also provides a
+TensorRT 11.1 `trtexec` builder on `PATH`; it uses the matching `vs-mlrt`
+runtime plus builder libraries and is intentionally an image-only dependency
+rather than a wheel payload. MkvToolNix is installed from its signed
 official Debian repository; the other downloadable tools use the upstream
 latest Release asset selected by `update-tools.sh`.
 
