@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1.7
+FROM python:3.13-slim-bookworm
+
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+ARG TS2_LINK_URL
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    VAPOURSYNTH_DOCKER_ROOT=/usr/local/lib/vapoursynth-docker
+
+COPY --chmod=0755 scripts/update-tools.sh ${VAPOURSYNTH_DOCKER_ROOT}/update-tools.sh
+
+# CUDA user-mode libraries arrive with the selected plugin wheels; the host driver
+# is supplied at runtime through NVIDIA Container Toolkit.
+RUN ${VAPOURSYNTH_DOCKER_ROOT}/update-tools.sh \
+    && rm -rf /root/.cache /var/lib/apt/lists/*
+
+COPY --chmod=0755 scripts/install-vapoursynth.sh scripts/verify-image.sh ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/
+
+RUN ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/install-vapoursynth.sh cu121 \
+    && ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/verify-image.sh cu121 \
+    && rm -rf ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts /root/.cache /var/lib/apt/lists/*
+
+RUN ln -sf "$(command -v python3)" /usr/local/bin/python \
+    && test "$(python --version)" = "$(python3 --version)"
+
+CMD ["python"]
