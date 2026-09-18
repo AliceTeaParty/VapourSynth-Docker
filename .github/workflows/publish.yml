@@ -26,10 +26,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
-      - name: Compute image version tag
+      - name: Compute image tags
         id: version
         shell: bash
-        run: echo "short_sha=${GITHUB_SHA:0:12}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "short_sha=${GITHUB_SHA:0:12}" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/vapoursynth-docker" >> "$GITHUB_OUTPUT"
       - name: Build and publish ${{ matrix.variant }}
         uses: docker/build-push-action@v6
         with:
@@ -39,13 +41,13 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           load: ${{ github.event_name == 'pull_request' }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/vapoursynth-docker:${{ matrix.variant }}
-            ghcr.io/${{ github.repository_owner }}/vapoursynth-docker:${{ matrix.variant }}-${{ steps.version.outputs.short_sha }}
+            ${{ steps.version.outputs.image }}:${{ matrix.variant }}
+            ${{ steps.version.outputs.image }}:${{ matrix.variant }}-${{ steps.version.outputs.short_sha }}
           cache-from: type=gha,scope=${{ matrix.variant }}
           cache-to: type=gha,mode=max,scope=${{ matrix.variant }}
       - name: Smoke test ${{ matrix.variant }}
         if: github.event_name == 'pull_request'
         run: >-
           docker run --rm
-          ghcr.io/${{ github.repository_owner }}/vapoursynth-docker:${{ matrix.variant }}-${{ steps.version.outputs.short_sha }}
+          ${{ steps.version.outputs.image }}:${{ matrix.variant }}-${{ steps.version.outputs.short_sha }}
           python -c "import vapoursynth as vs; assert vs.__api_version__.api_major >= 4; clip=vs.core.std.BlankClip(width=16,height=16,length=1,format=vs.GRAY8); assert clip.get_frame(0).width == 16; print(vs.__api_version__)"
