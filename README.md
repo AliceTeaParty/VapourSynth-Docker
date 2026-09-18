@@ -20,9 +20,10 @@ ghcr.io/aliceteaparty/vapoursynth-docker:cu121
 ghcr.io/aliceteaparty/vapoursynth-docker:cu129
 ```
 
-Each publish also records a UTC date snapshot such as `260918-cpu` and an
-immutable source tag such as `cpu-<commit-sha>`. The three short tags above
-always move to the newest image in their respective compatibility line.
+Each publish produces exactly six tags: the three floating compatibility tags
+above and one immutable 12-character source tag per line, such as
+`cpu-7c05a2f12345`. The floating tags always move to the newest image in their
+respective compatibility line.
 This is a public GHCR package. GitHub's current Container registry policy
 makes container-image storage and bandwidth free; no automatic image-deletion
 job is configured. Reassess this choice if GitHub changes that policy.
@@ -44,9 +45,16 @@ CUDA/TensorRT filtering needs a compatible NVIDIA driver and GPU.
 ## Included tools
 
 `ts2_link`, `x265`, `mkvmerge`, `mkvinfo`, `mkvextract`, `tsMuxeR`, `ffmpeg`,
-and `ffprobe` are on `PATH`. MkvToolNix is installed from its signed official
-Debian repository; the other four downloadable tools use the upstream latest
-Release asset selected by `update-tools.sh`.
+`ffprobe`, and `qaac64` are on `PATH`. MkvToolNix is installed from its signed
+official Debian repository; the other downloadable tools use the upstream
+latest Release asset selected by `update-tools.sh`.
+
+`qaac64` runs the upstream Windows binary through Wine because qaac has no
+native Linux runtime. The image installs Wine's amd64 and i386 support
+runtimes, qaac 3.07, pinned QTFiles QuickTime/MSVC DLL archives, and the
+RareWares FLAC DLL. Every external qaac artifact has a pinned SHA-256 and the
+build runs `qaac64 --check` in an ephemeral Wine prefix. The runtime files stay
+in `/opt/qaac-wine`; no Wine prefix is embedded in the image.
 
 The build executes the updater once. It remains available in the final image
 for a deliberate manual refresh:
