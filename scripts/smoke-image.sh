@@ -13,6 +13,7 @@ import vapoursynth as vs
 assert vs.__api_version__.api_major >= 4, vs.__api_version__
 if sys.argv[1] == "cpu":
     core = vs.core
+    assert hasattr(core, "fmtc")
     clip = core.std.BlankClip(width=16, height=16, length=1, format=vs.GRAY8)
     assert clip.get_frame(0).width == 16
 print(f"runtime smoke passed for {sys.argv[1]}")

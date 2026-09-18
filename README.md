@@ -1,8 +1,10 @@
 # VapourSynth Docker
 
 Three Linux x86_64 images provide a Python 3.13 VapourSynth API4 environment
-for encode work. They contain one system-level Python installation and do not
-use Conda. `python` is an explicit symlink to that same `python3` interpreter.
+for encode work. They use `python:3.13-slim-trixie`, whose current libstdc++
+supports the GLIBCXX ABI required by the cu129 TensorRT payload. They contain
+one system-level Python installation and do not use Conda. `python` is an
+explicit symlink to that same `python3` interpreter.
 
 | Image tag | Special plugin refs | GPU requirement |
 | --- | --- | --- |
@@ -17,6 +19,13 @@ ghcr.io/aliceteaparty/vapoursynth-docker:cpu
 ghcr.io/aliceteaparty/vapoursynth-docker:cu121
 ghcr.io/aliceteaparty/vapoursynth-docker:cu129
 ```
+
+Each publish also records a UTC date snapshot such as `260918-cpu` and an
+immutable source tag such as `cpu-<commit-sha>`. The three short tags above
+always move to the newest image in their respective compatibility line.
+This is a public GHCR package. GitHub's current Container registry policy
+makes container-image storage and bandwidth free; no automatic image-deletion
+job is configured. Reassess this choice if GitHub changes that policy.
 
 The CUDA images intentionally use the same small Python base as `cpu`, rather
 than an NVIDIA CUDA base image. The selected `vs-mlrt` payload includes its

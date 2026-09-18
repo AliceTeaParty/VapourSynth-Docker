@@ -4,7 +4,7 @@ set -euo pipefail
 readonly TOOL_ROOT=/opt/vapoursynth-tools
 readonly TS2_LINK_URL_DEFAULT="https://github.com/AliceTeaParty/VapourSynth-Docker/releases/download/ts2-link-v0.4/ts2_link-v0.4-linux-x86_64.zip"
 readonly MKVTOOLNIX_KEY_URL="https://mkvtoolnix.download/gpg-pub-moritzbunkus.gpg"
-readonly MKVTOOLNIX_SOURCE="https://mkvtoolnix.download/debian/ bookworm main"
+readonly MKVTOOLNIX_SOURCE="https://mkvtoolnix.download/debian/ trixie main"
 
 require_root() {
     if [[ "$(id -u)" -ne 0 ]]; then
@@ -50,6 +50,7 @@ install_mkvtoolnix() {
         bzip2 \
         ca-certificates \
         curl \
+        libatomic1 \
         git \
         jq \
         libfftw3-double3 \

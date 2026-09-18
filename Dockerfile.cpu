@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM python:3.13-slim-bookworm
+FROM python:3.13-slim-trixie
 
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
@@ -27,4 +27,4 @@ RUN ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/install-vapoursynth.sh cpu \
 RUN ln -sf "$(command -v python3)" /usr/local/bin/python \
     && test "$(python --version)" = "$(python3 --version)"
 
-CMD ["python"]
+RUN rm -rf /tmp/* /root/.cache/* /var/cache/apt/archives/* /var/lib/apt/lists/*

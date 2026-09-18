@@ -24,5 +24,11 @@ if missing:
     raise SystemExit(f"missing required distributions: {', '.join(missing)}")
 if vs.__api_version__.api_major < 4:
     raise SystemExit(f"expected VapourSynth API4, got {vs.__api_version__}")
+core = vs.core
+if not hasattr(core, "fmtc"):
+    raise SystemExit("fmtconv did not register its fmtc namespace")
+clip = core.std.BlankClip(width=16, height=16, length=1, format=vs.GRAY8)
+if clip.get_frame(0).width != 16:
+    raise SystemExit("VapourSynth core frame request failed")
 print(f"VapourSynth API {vs.__api_version__.api_major} image verification passed for {variant}")
 PY
