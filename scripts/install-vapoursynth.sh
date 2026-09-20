@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-variant="${1:?usage: install-vapoursynth.sh cpu|cu121|cu129}"
+variant="${1:?usage: install-vapoursynth.sh generic|cu121|cu129}"
 build_constraint="$(mktemp)"
 trap 'rm -f "$build_constraint"' EXIT
 printf 'hatchling<1.32\n' > "$build_constraint"
 export PIP_BUILD_CONSTRAINT="$build_constraint"
 
 case "$variant" in
-    cpu)
+    generic)
         bm3dcuda_ref=cpu
         dfttest2_ref=cpu
         vsmlrt_ref=generic
@@ -35,7 +35,6 @@ python3 -m pip install \
 python3 -m pip install --upgrade \
     vapoursynth-vszip \
     vapoursynth-vszipcl \
-    vapoursynth-vszipcu \
     vapoursynth-zsmooth \
     vapoursynth-bestsource \
     vapoursynth-lsmas \
@@ -43,6 +42,12 @@ python3 -m pip install --upgrade \
     vapoursynth-nnedi3vk \
     vapoursynth-eedi3vk2 \
     vapoursynth-bm3dvk
+
+# vszipcu is the CUDA payload of vszip and needs an NVIDIA GPU plus NVRTC at
+# runtime, so the generic variant deliberately leaves it out.
+if [[ "$variant" != generic ]]; then
+    python3 -m pip install --upgrade vapoursynth-vszipcu
+fi
 
 python3 -m pip install --upgrade \
     --extra-index-url https://jaded-encoding-thaumaturgy.github.io/vs-wheels/simple \

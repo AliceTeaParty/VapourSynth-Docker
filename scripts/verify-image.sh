@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-variant="${1:?usage: verify-image.sh cpu|cu121|cu129}"
+variant="${1:?usage: verify-image.sh generic|cu121|cu129}"
 
 for command in ts2_link x265 mkvmerge mkvinfo mkvextract tsMuxeR ffmpeg ffprobe qaac64; do
     command -v "$command" >/dev/null
@@ -28,6 +28,24 @@ for name in required:
         missing.append(name)
 if missing:
     raise SystemExit(f"missing required distributions: {', '.join(missing)}")
+
+# vszip ships separate CPU, OpenCL, and CUDA payloads. Only the CUDA one is tied
+# to an NVIDIA GPU, so generic must not carry it while the CUDA variants must.
+for name in ("vapoursynth-vszip", "vapoursynth-vszipcl", "vapoursynth-vszipcu"):
+    try:
+        metadata.distribution(name)
+        installed = True
+    except metadata.PackageNotFoundError:
+        installed = False
+    if name == "vapoursynth-vszipcu":
+        expected = variant != "generic"
+    else:
+        expected = True
+    if installed != expected:
+        raise SystemExit(
+            f"{name} is {'installed' if installed else 'missing'} in the {variant} image"
+        )
+
 if vs.__api_version__.api_major < 4:
     raise SystemExit(f"expected VapourSynth API4, got {vs.__api_version__}")
 core = vs.core

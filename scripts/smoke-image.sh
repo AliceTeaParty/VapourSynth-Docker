@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-variant="${1:?usage: smoke-image.sh cpu|cu121|cu129}"
+variant="${1:?usage: smoke-image.sh generic|cu121|cu129}"
 for command in ts2_link x265 mkvmerge mkvinfo mkvextract tsMuxeR ffmpeg ffprobe qaac64; do
     command -v "$command" >/dev/null
 done
@@ -15,7 +15,7 @@ import sys
 import vapoursynth as vs
 
 assert vs.__api_version__.api_major >= 4, vs.__api_version__
-if sys.argv[1] == "cpu":
+if sys.argv[1] == "generic":
     core = vs.core
     assert hasattr(core, "fmtc")
     clip = core.std.BlankClip(width=16, height=16, length=1, format=vs.GRAY8)

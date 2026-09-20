@@ -20,8 +20,8 @@ RUN ${VAPOURSYNTH_DOCKER_ROOT}/update-tools.sh \
 
 COPY --chmod=0755 scripts/install-vapoursynth.sh scripts/verify-image.sh ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/
 
-RUN ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/install-vapoursynth.sh cpu \
-    && ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/verify-image.sh cpu \
+RUN ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/install-vapoursynth.sh generic \
+    && ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/verify-image.sh generic \
     && rm -rf ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts /root/.cache /var/lib/apt/lists/*
 
 RUN ln -sf "$(command -v python3)" /usr/local/bin/python \
