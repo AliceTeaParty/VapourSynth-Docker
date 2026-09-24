@@ -19,7 +19,12 @@ import sys
 import vapoursynth as vs
 
 variant = sys.argv[1]
-required = ("VapourSynth", "vapoursynth-bm3dcuda", "vapoursynth-dfttest2", "vs-mlrt")
+variant_distributions = {
+    "generic": ("vapoursynth-bm3dcpu", "vapoursynth-dfttest2-cpu", "vs-mlrt-generic"),
+    "cu121": ("vapoursynth-bm3dcuda-cu121", "vapoursynth-dfttest2-cu121", "vs-mlrt-cu121"),
+    "cu129": ("vapoursynth-bm3dcuda-cu129", "vapoursynth-dfttest2-cu129", "vs-mlrt-cu129"),
+}
+required = ("VapourSynth", *variant_distributions[variant])
 missing = []
 for name in required:
     try:

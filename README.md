@@ -4,17 +4,18 @@ Three Linux x86_64 images provide a Python 3.13 VapourSynth API4 environment
 for encode work. They use `python:3.13-slim-trixie`, whose current libstdc++
 supports the GLIBCXX ABI required by the cu129 TensorRT payload. They contain
 one system-level Python installation and do not use Conda. `python` is an
-explicit symlink to that same `python3` interpreter.
+explicit symlink to that same `python3` interpreter, and `python3` is the image
+entrypoint.
 
-| Image tag | Special plugin refs | GPU requirement |
+| Image tag | Variant packages | GPU requirement |
 | --- | --- | --- |
-| `generic` | BM3DCUDA `cpu`, DFTTest2 `cpu`, vs-mlrt `generic` | None |
-| `cu121` | all three at `cu121` | NVIDIA driver supporting CUDA 12.1 |
-| `cu129` | all three at `cu129` | NVIDIA driver supporting CUDA 12.9 |
+| `generic` | `vapoursynth-bm3dcpu`, `vapoursynth-dfttest2-cpu`, `vs-mlrt-generic` | None |
+| `cu121` | BM3DCUDA, DFTTest2, and vs-mlrt `cu121` wheels | NVIDIA driver supporting CUDA 12.1 |
+| `cu129` | BM3DCUDA, DFTTest2, and vs-mlrt `cu129` wheels | NVIDIA driver supporting CUDA 12.9 |
 
-The `generic` tag is the CUDA-free variant, matching the `generic` ref vs-mlrt
-publishes. It deliberately omits `vapoursynth-vszipcu`, the CUDA payload of
-vszip, which needs an NVIDIA GPU and NVRTC at runtime; the CPU
+The `generic` tag is the CUDA-free variant. It deliberately omits
+`vapoursynth-vszipcu`, the CUDA payload of vszip, which needs an NVIDIA GPU and
+NVRTC at runtime; the CPU
 `vapoursynth-vszip` and OpenCL `vapoursynth-vszipcl` payloads are installed in
 all three images.
 
@@ -42,7 +43,8 @@ driver library. At runtime, NVIDIA Container Toolkit supplies `libcuda.so.1`
 from the host driver:
 
 ```bash
-docker run --rm --gpus all ghcr.io/aliceteaparty/vapoursynth-docker:cu129 python -c "import vapoursynth as vs; print(vs.__api_version__)"
+docker run --rm --gpus all ghcr.io/aliceteaparty/vapoursynth-docker:cu129 \
+  -c "import vapoursynth as vs; print(vs.__api_version__)"
 ```
 
 CUDA image construction and non-GPU smoke checks do not require a GPU. Actual
@@ -69,8 +71,9 @@ The build executes the updater once. It remains available in the final image
 for a deliberate manual refresh:
 
 ```bash
-docker run --rm -it --user root ghcr.io/aliceteaparty/vapoursynth-docker:generic \
-  sh -c '$VAPOURSYNTH_DOCKER_ROOT/update-tools.sh'
+docker run --rm -it --user root --entrypoint sh \
+  ghcr.io/aliceteaparty/vapoursynth-docker:generic \
+  -c '$VAPOURSYNTH_DOCKER_ROOT/update-tools.sh'
 ```
 
 The fixed `ts2-link-v0.4` Release contains exactly one asset named
@@ -80,11 +83,14 @@ binary is intentionally not tracked in this repository. Maintainers replace
 the single Release asset from their local distribution source before building a
 new image.
 
-The VCS plugin builds use an isolated `hatchling<1.32` build constraint.
+Maintained API4 ports are installed as prebuilt wheels from the
+[`vapoursynth-api4-wheels`](https://github.com/AliceTeaParty/vapoursynth-api4-wheels)
+package index. The two ports not yet published there, TIVTC and Bifrost, remain
+VCS builds and use an isolated `hatchling<1.32` build constraint.
 Hatchling 1.32 changed `BuildHookInterface` from one generic parameter to two,
-while the currently published plugin hooks use the prior public interface. The
-constraint applies only to temporary PEP 517 build environments and does not
-add Hatchling to the final image.
+while those plugin hooks use the prior public interface. The constraint applies
+only to temporary PEP 517 build environments and does not add Hatchling to the
+final image.
 
 ## Local validation
 
@@ -95,7 +101,9 @@ caller; this repository and CI contain no proxy endpoint.
 ```bash
 docker build --build-arg HTTP_PROXY --build-arg HTTPS_PROXY --build-arg NO_PROXY \
   -f Dockerfile.generic -t vapoursynth-docker:generic .
-docker run --rm vapoursynth-docker:generic /usr/local/lib/vapoursynth-docker/smoke-image.sh generic
+docker run --rm \
+  --entrypoint /usr/local/lib/vapoursynth-docker/smoke-image.sh \
+  vapoursynth-docker:generic generic
 ```
 
 Build `Dockerfile.cu121` and `Dockerfile.cu129` in the same way. Their

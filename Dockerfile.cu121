@@ -29,3 +29,5 @@ RUN ln -sf "$(command -v python3)" /usr/local/bin/python \
     && test "$(python --version)" = "$(python3 --version)"
 
 RUN rm -rf /tmp/* /root/.cache/* /var/cache/apt/archives/* /var/lib/apt/lists/*
+
+ENTRYPOINT ["python3"]
