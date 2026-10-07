@@ -83,7 +83,17 @@ new image.
 
 Maintained API4 ports are installed as prebuilt wheels from the
 [`vapoursynth-api4-wheels`](https://github.com/AliceTeaParty/vapoursynth-api4-wheels)
-package index. The two ports not yet published there, TIVTC and Bifrost, remain
+package index. Exact `+alice.1` pins in `scripts/requirements-api4-*.txt` keep
+pip from selecting same-name PyPI packages. The three vs-mlrt entries use
+`16.2.6+alice.1` and their component/model dependencies use `16.2.2+alice.1`;
+BM3D uses `2.16+alice.1` and DFTTest2 uses `10.2+alice.1` in each CUDA/CPU line.
+
+`rksfunc`, `rkstool`, and `vs-collection-rk` are installed as wheels using only
+the api4-wheels index, without version pins. The Collection entry installs its
+separately packaged, version-pinned components. Other script dependencies
+(`getnative`, `awsmfunc`, and `vsjetpack`) continue to come from PyPI.
+
+The two ports not yet published there, TIVTC and Bifrost, remain
 VCS builds and use an isolated `hatchling<1.32` build constraint.
 Hatchling 1.32 changed `BuildHookInterface` from one generic parameter to two,
 while those plugin hooks use the prior public interface. The constraint applies
@@ -111,4 +121,9 @@ run an application filter with `--gpus all` to validate GPU inference.
 On pushes to `main` and manual dispatches, the workflow builds and pushes all
 three image tags to GHCR. The fixed ts2_link Release asset must already exist.
 Pull requests build the same matrix locally in the runner without pushing an
-image.
+image. Both builds and runtime smoke tests check the installed API4 versions,
+script wheel provenance, Collection component versions, and vs-mlrt layout.
+The generic smoke also renders a frame through BM3D's CPU backend.
+After publication, fresh jobs pull each immutable tag anonymously from GHCR
+and repeat the runtime checks. Optional Docker build-record artifact uploads
+are disabled; build logs and job summaries remain available.
