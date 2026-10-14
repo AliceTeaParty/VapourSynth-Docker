@@ -3,21 +3,10 @@ set -euo pipefail
 
 variant="${1:?usage: install-vapoursynth.sh generic|cu121|cu129}"
 readonly api4_wheels_index="https://aliceteaparty.github.io/vapoursynth-api4-wheels/simple/"
-build_constraint="$(mktemp)"
-trap 'rm -f "$build_constraint"' EXIT
-printf 'hatchling<1.32\n' > "$build_constraint"
-export PIP_BUILD_CONSTRAINT="$build_constraint"
+readonly requirements_dir="${VAPOURSYNTH_DOCKER_ROOT:?}/requirements"
 
 case "$variant" in
-    generic)
-        bm3d_package=vapoursynth-bm3dcpu
-        dfttest2_package=vapoursynth-dfttest2-cpu
-        vsmlrt_package=vs-mlrt-generic
-        ;;
-    cu121|cu129)
-        bm3d_package="vapoursynth-bm3dcuda-${variant}"
-        dfttest2_package="vapoursynth-dfttest2-${variant}"
-        vsmlrt_package="vs-mlrt-${variant}"
+    generic|cu121|cu129)
         ;;
     *)
         echo "Unsupported VapourSynth variant: $variant" >&2
@@ -26,24 +15,13 @@ case "$variant" in
 esac
 
 python3 -m pip install --upgrade pip setuptools wheel
-python3 -m pip install --upgrade vapoursynth
+python3 -m pip install --upgrade "vapoursynth>=81"
 
 python3 -m pip install --upgrade \
     --extra-index-url "$api4_wheels_index" \
-    "$bm3d_package" \
-    "$dfttest2_package" \
-    "$vsmlrt_package" \
-    vs-nlq \
-    vapoursynth-nnedi3cl \
-    vapoursynth-smoothuv \
-    vapoursynth-dfttest \
-    vapoursynth-knlm \
-    vapoursynth-retinex \
-    vapoursynth-tcomb \
-    vapoursynth-tcanny \
-    vapoursynth-misc \
-    vapoursynth-fft3dfilter \
-    vs-cfl
+    --only-binary=:all: \
+    --requirement "${requirements_dir}/requirements-api4-common.txt" \
+    --requirement "${requirements_dir}/requirements-api4-${variant}.txt"
 
 python3 -m pip install --upgrade \
     vapoursynth-vszip \
@@ -53,7 +31,8 @@ python3 -m pip install --upgrade \
     vapoursynth-lsmas \
     vapoursynth-mvutensils \
     vapoursynth-nnedi3vk \
-    vapoursynth-eedi3vk2
+    vapoursynth-eedi3vk2 \
+    vapoursynth-bm3dvk2
 
 # vszipcu is the CUDA payload of vszip and needs an NVIDIA GPU plus NVRTC at
 # runtime, so the generic variant deliberately leaves it out.
@@ -91,16 +70,17 @@ python3 -m pip install --upgrade \
     vapoursynth-sangnom \
     vapoursynth-bm3d \
     vapoursynth-eedi3 \
-    vapoursynth-edgemasks
+    vapoursynth-edgemasks \
+    vapoursynth-tivtc \
+    vapoursynth-bifrost
 
-python3 -m pip install \
-    "vapoursynth-tivtc @ git+https://github.com/RyougiKukoc/vapoursynth-tivtc-api4.git" \
-    "vapoursynth-bifrost @ git+https://github.com/RyougiKukoc/vapoursynth-bifrost-vcs.git"
-
-python3 -m pip install --force-reinstall \
-    git+https://github.com/RyougiKukoc/rkstool.git \
-    git+https://github.com/RyougiKukoc/rksfunc.git \
-    "vs-collection-rk @ git+https://github.com/RyougiKukoc/VapourSynth-Scripts-Collection.git"
 python3 -m pip install --upgrade getnative awsmfunc vsjetpack
+
+# Keep the upstream-owned module versions unpinned. The Collection entry pins
+# its own component wheels; this index supplies the entire script wheel set.
+python3 -m pip install --upgrade \
+    --index-url "$api4_wheels_index" \
+    --only-binary=:all: \
+    rkstool rksfunc vs-collection-rk
 
 python3 -m pip check

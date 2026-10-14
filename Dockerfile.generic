@@ -18,6 +18,9 @@ COPY --chmod=0755 scripts/update-tools.sh ${VAPOURSYNTH_DOCKER_ROOT}/update-tool
 RUN ${VAPOURSYNTH_DOCKER_ROOT}/update-tools.sh \
     && rm -rf /root/.cache /var/lib/apt/lists/*
 
+COPY scripts/requirements-api4-*.txt ${VAPOURSYNTH_DOCKER_ROOT}/requirements/
+COPY --chmod=0755 scripts/verify-packages.py scripts/smoke-image.sh ${VAPOURSYNTH_DOCKER_ROOT}/
+
 COPY --chmod=0755 scripts/install-vapoursynth.sh scripts/verify-image.sh ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/
 
 RUN ${VAPOURSYNTH_DOCKER_ROOT}/build-scripts/install-vapoursynth.sh generic \
