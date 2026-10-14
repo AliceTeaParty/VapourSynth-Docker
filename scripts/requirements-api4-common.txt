@@ -1,4 +1,4 @@
-# Maintained API4 wheels; exact local versions avoid same-name PyPI packages.
+# API4 wheel snapshot; modified upstream projects retain their local versions.
 vs-nlq==1.2.0+alice.1
 vs-cfl==1.0.2+alice.1
 vapoursynth-nnedi3cl==8.1+alice.1
@@ -10,3 +10,5 @@ vapoursynth-tcomb==4.2+alice.1
 vapoursynth-tcanny==14.1+alice.1
 vapoursynth-misc==2.1+alice.1
 vapoursynth-fft3dfilter==2.1+alice.1
+vapoursynth-krigbilateralvk==0.4.1
+vapoursynth-dfttestvk==0.1.0

@@ -4,10 +4,6 @@ set -euo pipefail
 variant="${1:?usage: install-vapoursynth.sh generic|cu121|cu129}"
 readonly api4_wheels_index="https://aliceteaparty.github.io/vapoursynth-api4-wheels/simple/"
 readonly requirements_dir="${VAPOURSYNTH_DOCKER_ROOT:?}/requirements"
-build_constraint="$(mktemp)"
-trap 'rm -f "$build_constraint"' EXIT
-printf 'hatchling<1.32\n' > "$build_constraint"
-export PIP_BUILD_CONSTRAINT="$build_constraint"
 
 case "$variant" in
     generic|cu121|cu129)
@@ -19,7 +15,7 @@ case "$variant" in
 esac
 
 python3 -m pip install --upgrade pip setuptools wheel
-python3 -m pip install --upgrade vapoursynth
+python3 -m pip install --upgrade "vapoursynth>=81"
 
 python3 -m pip install --upgrade \
     --extra-index-url "$api4_wheels_index" \
@@ -35,7 +31,8 @@ python3 -m pip install --upgrade \
     vapoursynth-lsmas \
     vapoursynth-mvutensils \
     vapoursynth-nnedi3vk \
-    vapoursynth-eedi3vk2
+    vapoursynth-eedi3vk2 \
+    vapoursynth-bm3dvk2
 
 # vszipcu is the CUDA payload of vszip and needs an NVIDIA GPU plus NVRTC at
 # runtime, so the generic variant deliberately leaves it out.
@@ -73,11 +70,9 @@ python3 -m pip install --upgrade \
     vapoursynth-sangnom \
     vapoursynth-bm3d \
     vapoursynth-eedi3 \
-    vapoursynth-edgemasks
-
-python3 -m pip install \
-    "vapoursynth-tivtc @ git+https://github.com/RyougiKukoc/vapoursynth-tivtc-api4.git" \
-    "vapoursynth-bifrost @ git+https://github.com/RyougiKukoc/vapoursynth-bifrost-vcs.git"
+    vapoursynth-edgemasks \
+    vapoursynth-tivtc \
+    vapoursynth-bifrost
 
 python3 -m pip install --upgrade getnative awsmfunc vsjetpack
 

@@ -19,7 +19,7 @@ def requirements(group: str) -> dict[str, str]:
         if not line.strip() or line.startswith("#"):
             continue
         name, separator, version = line.partition("==")
-        if not separator or "+alice." not in version:
+        if not separator or not name or not version:
             raise RuntimeError(f"Expected an exact API4 wheel version: {line}")
         result[name] = version
     return result
@@ -41,8 +41,11 @@ def verify(variant: str) -> None:
                 continue
             raise RuntimeError(f"Conflicting image variant is installed: {name}")
 
-    # These modules now arrive as wheels, rather than overlapping VCS installs.
-    for name in ("rksfunc", "rkstool", "vs-collection-rk"):
+    # Scripts and upstream plugins must use their published index packages.
+    for name in (
+        "rksfunc", "rkstool", "vs-collection-rk",
+        "vapoursynth-tivtc", "vapoursynth-bifrost", "vapoursynth-bm3dvk2",
+    ):
         distribution = metadata.distribution(name)
         if direct_url := distribution.read_text("direct_url.json"):
             if "vcs_info" in json.loads(direct_url):
@@ -72,6 +75,8 @@ def verify(variant: str) -> None:
     import vsmlrt
     if vs.__api_version__.api_major < 4:
         raise RuntimeError(f"Expected VapourSynth API4, got {vs.__api_version__}")
+    if vs.__version__.release_major < 81:
+        raise RuntimeError(f"Expected VapourSynth R81+, got {vs.__version__}")
     plugin_root = Path(vsmlrt.plugins_path)
     native_files = ["vsncnn.so", "vsov.so", "manifest.vs"]
     if variant != "generic":
@@ -83,14 +88,19 @@ def verify(variant: str) -> None:
             raise RuntimeError(f"Missing vs-mlrt payload: {name}")
     if variant == "generic":
         core = vs.core
-        if not hasattr(core, "fmtc"):
-            raise RuntimeError("fmtconv did not register its fmtc namespace")
+        for namespace in ("fmtc", "krigvk", "dfttestvk", "bm3dvk2", "tivtc", "bifrost"):
+            if not hasattr(core, namespace):
+                raise RuntimeError(f"Plugin did not register its {namespace} namespace")
         clip = core.std.BlankClip(width=16, height=16, length=1, format=vs.GRAY8)
         if clip.get_frame(0).width != 16:
             raise RuntimeError("VapourSynth frame request failed")
         clip = core.std.BlankClip(width=16, height=16, length=1, format=vs.YUV444PS, color=[0.5] * 3)
         if core.bm3dcpu.BM3D(clip, sigma=[1.0] * 3, radius=0).get_frame(0).width != 16:
             raise RuntimeError("BM3D CPU frame request failed")
+        clip = core.std.BlankClip(width=64, height=48, length=10, format=vs.YUV420P8)
+        for filtered in (core.tivtc.TFM(clip, order=1), core.bifrost.Bifrost(clip)):
+            if filtered.get_frame(5).width != 64:
+                raise RuntimeError("TIVTC/Bifrost frame request failed")
     print(f"Verified {len(expected)} API4 wheel pins, script wheels and {variant} payload layout")
 
 

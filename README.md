@@ -1,6 +1,6 @@
 # VapourSynth Docker
 
-Three Linux x86_64 images provide a Python 3.13 VapourSynth API4 environment
+Three Linux x86_64 images provide a Python 3.13 VapourSynth R81+ API4 environment
 for encode work. They use `python:3.13-slim-trixie`, whose current libstdc++
 supports the GLIBCXX ABI required by the cu129 TensorRT payload. They contain
 one system-level Python installation and do not use Conda. `python` is an
@@ -18,6 +18,13 @@ The `generic` tag is the CUDA-free variant. It deliberately omits
 NVRTC at runtime; the CPU
 `vapoursynth-vszip` and OpenCL `vapoursynth-vszipcl` payloads are installed in
 all three images.
+
+All variants include BM3DVK2, KrigBilateralVK and DFTTestVK, following the
+[API4 environment guide](https://github.com/AliceTeaParty/How-to-Create-an-Environment/blob/main/%40plugin-api4.md).
+KrigBilateralVK and DFTTestVK require a Vulkan 1.4 device/driver for rendering.
+The Vulkan loader is installed in the image; the device and vendor driver must
+be exposed by the host. CUDA compatibility alone does not guarantee Vulkan
+availability in a container. CPU filters remain usable without a GPU.
 
 Published images are available at:
 
@@ -83,8 +90,10 @@ new image.
 
 Maintained API4 ports are installed as prebuilt wheels from the
 [`vapoursynth-api4-wheels`](https://github.com/AliceTeaParty/vapoursynth-api4-wheels)
-package index. Exact `+alice.1` pins in `scripts/requirements-api4-*.txt` keep
-pip from selecting same-name PyPI packages. The three vs-mlrt entries use
+package index. The snapshot in `scripts/requirements-api4-*.txt` keeps exact
+published versions, including `+alice.1` for modified upstream packages, so pip
+cannot select a different same-name PyPI package. KrigBilateralVK `0.4.1` and
+DFTTestVK `0.1.0` keep their original versions. The three vs-mlrt entries use
 `16.2.6+alice.1` and their component/model dependencies use `16.2.2+alice.1`;
 BM3D uses `2.16+alice.1` and DFTTest2 uses `10.2+alice.1` in each CUDA/CPU line.
 
@@ -93,12 +102,9 @@ the api4-wheels index, without version pins. The Collection entry installs its
 separately packaged, version-pinned components. Other script dependencies
 (`getnative`, `awsmfunc`, and `vsjetpack`) continue to come from PyPI.
 
-The two ports not yet published there, TIVTC and Bifrost, remain
-VCS builds and use an isolated `hatchling<1.32` build constraint.
-Hatchling 1.32 changed `BuildHookInterface` from one generic parameter to two,
-while those plugin hooks use the prior public interface. The constraint applies
-only to temporary PEP 517 build environments and does not add Hatchling to the
-final image.
+TIVTC, Bifrost and BM3DVK2 use the upstream PyPI wheels, as in the environment
+guide. The former TIVTC/Bifrost VCS builds and their Hatchling constraint are
+no longer needed.
 
 ## Local validation
 
@@ -123,7 +129,9 @@ three image tags to GHCR. The fixed ts2_link Release asset must already exist.
 Pull requests build the same matrix locally in the runner without pushing an
 image. Both builds and runtime smoke tests check the installed API4 versions,
 script wheel provenance, Collection component versions, and vs-mlrt layout.
-The generic smoke also renders a frame through BM3D's CPU backend.
+The generic smoke also checks the new Vulkan plugin namespaces and renders
+frames through BM3D's CPU backend, TIVTC and Bifrost. This checks Vulkan plugin
+loading; rendering with Vulkan still requires a suitable device and driver.
 After publication, fresh jobs pull each immutable tag anonymously from GHCR
 and repeat the runtime checks. Optional Docker build-record artifact uploads
 are disabled; build logs and job summaries remain available.
