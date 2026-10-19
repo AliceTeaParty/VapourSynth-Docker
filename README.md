@@ -101,6 +101,8 @@ BM3D uses `2.16+alice.1` and DFTTest2 uses `10.2+alice.1` in each CUDA/CPU line.
 the api4-wheels index, without version pins. The Collection entry installs its
 separately packaged, version-pinned components. Other script dependencies
 (`getnative`, `awsmfunc`, and `vsjetpack`) continue to come from PyPI.
+Build and runtime checks also resolve rkstool's default tsMuxeR executable on
+`PATH`, covering the Linux executable-name fix published in rkstool 1.1.4.
 
 TIVTC, Bifrost and BM3DVK2 use the upstream PyPI wheels, as in the environment
 guide. The former TIVTC/Bifrost VCS builds and their Hatchling constraint are

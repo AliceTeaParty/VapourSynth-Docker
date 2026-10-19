@@ -6,6 +6,7 @@ import importlib.metadata as metadata
 import importlib.util
 import json
 from pathlib import Path
+import shutil
 import sys
 
 
@@ -53,6 +54,11 @@ def verify(variant: str) -> None:
     for name in ("rksfunc", "rkstool"):
         if importlib.util.find_spec(name) is None:
             raise RuntimeError(f"Missing script module: {name}")
+    from rkstool import muxer
+    tsmuxer_path = shutil.which(muxer.g_tsmuxer_fp)
+    if tsmuxer_path is None:
+        raise RuntimeError(f"rkstool's default tsMuxeR executable is missing: {muxer.g_tsmuxer_fp}")
+    print(f"Verified rkstool {metadata.version('rkstool')} tsMuxeR executable: {tsmuxer_path}")
     import vs_collection_rk
     for component in vs_collection_rk.load_registry():
         name = component["distribution"]
