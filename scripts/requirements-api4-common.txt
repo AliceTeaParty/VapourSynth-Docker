@@ -10,5 +10,5 @@ vapoursynth-tcomb==4.2+alice.1
 vapoursynth-tcanny==14.1+alice.1
 vapoursynth-misc==2.1+alice.1
 vapoursynth-fft3dfilter==2.1+alice.1
-vapoursynth-krigbilateralvk==0.4.1
-vapoursynth-dfttestvk==0.1.0
+vapoursynth-krigbilateralvk==0.4.2
+vapoursynth-dfttestvk==0.1.1

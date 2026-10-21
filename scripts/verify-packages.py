@@ -34,6 +34,8 @@ def verify(variant: str) -> None:
         actual = metadata.version(name)
         if actual != version:
             raise RuntimeError(f"{name}: expected {version}, installed {actual}")
+    for name in ("vapoursynth-krigbilateralvk", "vapoursynth-dfttestvk", "vapoursynth-bm3dvk2"):
+        print(f"Verified Vulkan package: {name} {metadata.version(name)}")
     for other in set(VARIANTS) - {variant}:
         for name in requirements(other):
             try:

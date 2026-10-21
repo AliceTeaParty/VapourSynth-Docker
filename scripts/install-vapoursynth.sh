@@ -32,7 +32,7 @@ python3 -m pip install --upgrade \
     vapoursynth-mvutensils \
     vapoursynth-nnedi3vk \
     vapoursynth-eedi3vk2 \
-    vapoursynth-bm3dvk2
+    "vapoursynth-bm3dvk2>=2.0"
 
 # vszipcu is the CUDA payload of vszip and needs an NVIDIA GPU plus NVRTC at
 # runtime, so the generic variant deliberately leaves it out.

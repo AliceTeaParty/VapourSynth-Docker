@@ -92,8 +92,10 @@ Maintained API4 ports are installed as prebuilt wheels from the
 [`vapoursynth-api4-wheels`](https://github.com/AliceTeaParty/vapoursynth-api4-wheels)
 package index. The snapshot in `scripts/requirements-api4-*.txt` keeps exact
 published versions, including `+alice.1` for modified upstream packages, so pip
-cannot select a different same-name PyPI package. KrigBilateralVK `0.4.1` and
-DFTTestVK `0.1.0` keep their original versions. The three vs-mlrt entries use
+cannot select a different same-name PyPI package. KrigBilateralVK `0.4.2` and
+DFTTestVK `0.1.1` keep their original versions. These versions include the
+Krig workgroup layout and cached T=3 DFT scheduling optimizations. The three
+vs-mlrt entries use
 `16.2.6+alice.1` and their component/model dependencies use `16.2.2+alice.1`;
 BM3D uses `2.16+alice.1` and DFTTest2 uses `10.2+alice.1` in each CUDA/CPU line.
 
@@ -105,8 +107,8 @@ Build and runtime checks also resolve rkstool's default tsMuxeR executable on
 `PATH`, covering the Linux executable-name fix published in rkstool 1.1.4.
 
 TIVTC, Bifrost and BM3DVK2 use the upstream PyPI wheels, as in the environment
-guide. The former TIVTC/Bifrost VCS builds and their Hatchling constraint are
-no longer needed.
+guide. BM3DVK2 requires r2 or newer (`vapoursynth-bm3dvk2>=2.0`). The former
+TIVTC/Bifrost VCS builds and their Hatchling constraint are no longer needed.
 
 ## Local validation
 
